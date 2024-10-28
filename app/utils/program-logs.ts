@@ -43,7 +43,7 @@ export function parseProgramLogs(logs: string[], error: TransactionError | null,
         prettyError = getTransactionInstructionError(error);
     }
 
-    let currentProgram: string[] = [];
+    const currentProgram: string[] = [];
     logs.forEach(log => {
         if (log.startsWith('Program log:')) {
             // Use passive tense
@@ -145,8 +145,8 @@ export function parseProgramLogs(logs: string[], error: TransactionError | null,
                     const data = log.substring("Program data: ".length);
 
                     const buffer: Buffer = Buffer.from(data, 'base64');
-                    // @ts-ignore
-                    if (buffer.subarray(0, 8).equals(Buffer.from(Uint8Array.from([58, 230, 242, 3, 75, 113, 4, 169])))) {
+                    const fillLogPrefix: Uint8Array = Uint8Array.from([58, 230, 242, 3, 75, 113, 4, 169]);
+                    if (buffer.subarray(0, 8).equals(fillLogPrefix)) {
                         const deserializedFillLog: manifest.FillLog = manifest.FillLog.deserialize(
                             buffer.subarray(8),
                         )[0];

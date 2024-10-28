@@ -4,11 +4,11 @@ import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import * as elfy from 'elfy';
 import pako from 'pako';
 import { useEffect, useMemo } from 'react';
-import manifestIdl from './manifest.json';
-import wrapperIdl from './wrapper.json';
 
 import { formatIdl } from '../utils/convertLegacyIdl';
 import { useAccountInfo, useFetchAccountInfo } from './accounts';
+import manifestIdl from './manifest.json';
+import wrapperIdl from './wrapper.json';
 
 const cachedAnchorProgramPromises: Record<
     string,

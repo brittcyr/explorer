@@ -90,8 +90,8 @@ function AnchorDetails({ ix, anchorProgram }: { ix: TransactionInstruction; anch
                 const originalIxData = ix.data;
                 if (discrLength < DISCRIMINATOR_SIZE) {
                     for (let i = 0; i < DISCRIMINATOR_SIZE - discrLength; ++i) {
-                        let newData = Buffer.from([0, 0]);
-                        let newBuffer: Buffer = Buffer.alloc(ix.data.length - 1 + newData.length);
+                        const newData = Buffer.from([0, 0]);
+                        const newBuffer: Buffer = Buffer.alloc(ix.data.length - 1 + newData.length);
                         ix.data.copy(newBuffer as unknown as Uint8Array, 0, 0, 1);
                         ix.data.copy(newBuffer as unknown as Uint8Array, 2, 1);
                         ix.data = newBuffer;
