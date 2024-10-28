@@ -251,7 +251,8 @@ function convertInstruction(instruction: LegacyIdlInstruction): IdlInstruction {
     return {
         accounts: instruction.accounts.map(convertInstructionAccount),
         args: instruction.args.map(convertField),
-        discriminator: getDisc('global', name),
+        // @ts-ignore
+        discriminator: instruction.discriminant ? Array.from([instruction.discriminant.value]) : getDisc('global', name),
         name,
         returns: instruction.returns ? convertType(instruction.returns) : undefined,
     };

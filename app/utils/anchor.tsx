@@ -15,6 +15,7 @@ const ANCHOR_SELF_CPI_TAG = Buffer.from('1d9acb512ea545e4', 'hex').reverse();
 const ANCHOR_SELF_CPI_NAME = 'Anchor Self Invocation';
 
 export function instructionIsSelfCPI(ixData: Buffer): boolean {
+    // @ts-ignore
     return ixData.slice(0, 8).equals(ANCHOR_SELF_CPI_TAG);
 }
 

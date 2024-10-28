@@ -4,6 +4,8 @@ import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import * as elfy from 'elfy';
 import pako from 'pako';
 import { useEffect, useMemo } from 'react';
+import manifestIdl from './manifest.json';
+import wrapperIdl from './wrapper.json';
 
 import { formatIdl } from '../utils/convertLegacyIdl';
 import { useAccountInfo, useFetchAccountInfo } from './accounts';
@@ -115,10 +117,18 @@ function useIdlFromAnchorProgramSeed(programAddress: string, url: string): Idl |
 export function useAnchorProgram(programAddress: string, url: string): { program: Program | null; idl: Idl | null } {
     // TODO(ngundotra): Rewrite this to be more efficient
     // const idlFromBinary = useIdlFromSolanaProgramBinary(programAddress);
-    const idlFromAnchorProgram = useIdlFromAnchorProgramSeed(programAddress, url);
+    let idlFromAnchorProgram = useIdlFromAnchorProgramSeed(programAddress, url);
+    if (programAddress == "MNFSTqtC93rEfYHB6hF82sKdZpUDFWkViLByLd1k1Ms") {
+        idlFromAnchorProgram = manifestIdl as unknown as Idl;
+    }
+    if (programAddress == "wMNFSTkir3HgyZTsB7uqu3i7FA73grFCptPXgrZjksL") {
+        idlFromAnchorProgram = wrapperIdl as unknown as Idl;
+    }
     const idl = idlFromAnchorProgram;
     const program: Program<Idl> | null = useMemo(() => {
-        if (!idl) return null;
+        if (!idl) {
+            return null;
+        }
         try {
             const program = new Program(formatIdl(idl, programAddress), getProvider(url));
             return program;

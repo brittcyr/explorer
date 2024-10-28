@@ -1,3 +1,4 @@
+import { manifest } from '@cks-systems/manifest-sdk';
 import { TransactionError } from '@solana/web3.js';
 import { Cluster } from '@utils/cluster';
 import { getTransactionInstructionError } from '@utils/program-err';
@@ -42,6 +43,7 @@ export function parseProgramLogs(logs: string[], error: TransactionError | null,
         prettyError = getTransactionInstructionError(error);
     }
 
+    let currentProgram: string[] = [];
     logs.forEach(log => {
         if (log.startsWith('Program log:')) {
             // Use passive tense
@@ -62,6 +64,8 @@ export function parseProgramLogs(logs: string[], error: TransactionError | null,
 
             if (matches.length > 0) {
                 const programAddress = matches[0][1];
+                currentProgram.push(programAddress);
+
                 const programName = getProgramName(programAddress, cluster);
 
                 if (depth === 0) {
@@ -82,6 +86,7 @@ export function parseProgramLogs(logs: string[], error: TransactionError | null,
 
                 depth++;
             } else if (log.includes('success')) {
+                currentProgram.pop();
                 prettyLogs[prettyLogs.length - 1].logs.push({
                     prefix: prefixBuilder(depth),
                     style: 'success',
@@ -89,6 +94,7 @@ export function parseProgramLogs(logs: string[], error: TransactionError | null,
                 });
                 depth--;
             } else if (log.includes('failed')) {
+                currentProgram.pop();
                 const instructionLog = prettyLogs[prettyLogs.length - 1];
                 instructionLog.failed = true;
 
@@ -134,6 +140,23 @@ export function parseProgramLogs(logs: string[], error: TransactionError | null,
                     style: 'muted',
                     text: log,
                 });
+
+                if (log.includes("Program data: ") && currentProgram[currentProgram.length - 1] == "MNFSTqtC93rEfYHB6hF82sKdZpUDFWkViLByLd1k1Ms") {
+                    const data = log.substring("Program data: ".length);
+
+                    const buffer: Buffer = Buffer.from(data, 'base64');
+                    // @ts-ignore
+                    if (buffer.subarray(0, 8).equals(Buffer.from(Uint8Array.from([58, 230, 242, 3, 75, 113, 4, 169])))) {
+                        const deserializedFillLog: manifest.FillLog = manifest.FillLog.deserialize(
+                            buffer.subarray(8),
+                        )[0];
+                        prettyLogs[prettyLogs.length - 1].logs.push({
+                            prefix: prefixBuilder(depth),
+                            style: 'muted',
+                            text: 'Fill Log: ' + JSON.stringify(deserializedFillLog.pretty(), null, 2),
+                        });
+                    }
+                }
             }
         }
     });
