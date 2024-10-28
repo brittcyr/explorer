@@ -146,7 +146,8 @@ export function parseProgramLogs(logs: string[], error: TransactionError | null,
 
                     const buffer: Buffer = Buffer.from(data, 'base64');
                     const fillLogPrefix: Uint8Array = Uint8Array.from([58, 230, 242, 3, 75, 113, 4, 169]);
-                    if (buffer.subarray(0, 8).equals(fillLogPrefix)) {
+                    const bufferPrefix: Uint8Array = Uint8Array.from(buffer.subarray(0, 8));
+                    if (isEqualBytes(fillLogPrefix, bufferPrefix)) {
                         const deserializedFillLog: manifest.FillLog = manifest.FillLog.deserialize(
                             buffer.subarray(8),
                         )[0];
@@ -186,4 +187,21 @@ export function parseProgramLogs(logs: string[], error: TransactionError | null,
     }
 
     return prettyLogs;
+}
+
+export function isEqualBytes(
+    bytes1: Uint8Array,
+    bytes2: Uint8Array
+): boolean {
+    if (bytes1.length !== bytes2.length) {
+        return false;
+    }
+
+    for (let i = 0; i < bytes1.length; i++) {
+        if (bytes1[i] !== bytes2[i]) {
+            return false;
+        }
+    }
+
+    return true;
 }
