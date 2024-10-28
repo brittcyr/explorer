@@ -1,5 +1,5 @@
 import { Address } from '@components/common/Address';
-import { BorshEventCoder, BorshInstructionCoder, Idl, Instruction, Program } from '@coral-xyz/anchor';
+import { BorshEventCoder, BorshInstructionCoder, DISCRIMINATOR_SIZE, Idl, Instruction, Program } from '@coral-xyz/anchor';
 import { IdlEvent, IdlField, IdlInstruction, IdlTypeDefTyStruct } from '@coral-xyz/anchor/dist/cjs/idl';
 import { SignatureResult, TransactionInstruction } from '@solana/web3.js';
 import {
@@ -71,7 +71,35 @@ function AnchorDetails({ ix, anchorProgram }: { ix: TransactionInstruction; anch
                 ixAccounts = [{ isMut: false, isSigner: true, name: 'eventAuthority' }];
             } else {
                 coder = new BorshInstructionCoder(anchorProgram.idl);
+
+                // Until this gets published
+                // (https://github.com/coral-xyz/anchor/pull/3120), we need to
+                // pad discriminant and the ixdata
+                const discrLength: number = (
+                    anchorProgram.programId.toBase58() == "MNFSTqtC93rEfYHB6hF82sKdZpUDFWkViLByLd1k1Ms" ||
+                    anchorProgram.programId.toBase58() == "wMNFSTkir3HgyZTsB7uqu3i7FA73grFCptPXgrZjksL"
+                ) 
+                ? 1 : anchorProgram.idl.instructions[0].discriminator.length;
+
+                anchorProgram.idl.instructions = anchorProgram.idl.instructions.map((instr: IdlInstruction) => {
+                    while (instr.discriminator.length < DISCRIMINATOR_SIZE) {
+                        instr.discriminator.push(0);
+                    }
+                    return instr;
+                });
+                const originalIxData = ix.data;
+                if (discrLength < DISCRIMINATOR_SIZE) {
+                    for (let i = 0; i < DISCRIMINATOR_SIZE - discrLength; ++i) {
+                        const newData = Buffer.from([0, 0]);
+                        const newBuffer: Buffer = Buffer.alloc(ix.data.length - 1 + newData.length);
+                        ix.data.copy(newBuffer as unknown as Uint8Array, 0, 0, 1);
+                        ix.data.copy(newBuffer as unknown as Uint8Array, 2, 1);
+                        ix.data = newBuffer;
+                    }
+                }
+
                 decodedIxData = coder.decode(ix.data);
+                ix.data = originalIxData;
 
                 if (decodedIxData) {
                     ixDef = anchorProgram.idl.instructions.find(ixDef => ixDef.name === decodedIxData?.name);
