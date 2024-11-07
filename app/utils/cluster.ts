@@ -39,6 +39,7 @@ export function clusterName(cluster: Cluster): string {
     }
 }
 
+// Helius free
 export const MAINNET_BETA_URL = 'https://rochell-medfy8-fast-mainnet.helius-rpc.com';
 export const TESTNET_URL = 'https://api.testnet.solana.com';
 export const DEVNET_URL = 'https://api.devnet.solana.com';
