@@ -153,12 +153,16 @@ export function parseProgramLogs(logs: string[], error: TransactionError | null,
                         )[0];
                         // TODO: Import convertU128 from manifest sdk, also
                         // factor in decimals to make human readable
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         // @ts-ignore
                         deserializedFillLog.price = Number(deserializedFillLog.price.inner);
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         // @ts-ignore
                         deserializedFillLog.baseAtoms = Number(deserializedFillLog.baseAtoms.inner);
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         // @ts-ignore
                         deserializedFillLog.quoteAtoms = Number(deserializedFillLog.quoteAtoms.inner);
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         // @ts-ignore
                         delete deserializedFillLog.padding;
 
