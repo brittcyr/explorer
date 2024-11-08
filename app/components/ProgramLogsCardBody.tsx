@@ -110,7 +110,7 @@ function ProgramLogRow({
                             return (
                                 <span key={key}>
                                     <span className="text-muted">{log.prefix}</span>
-                                    <span className={`text-${log.style}`}>{log.text}</span>
+                                    <span style={{ whiteSpace: "pre-line"}}className={`text-${log.style}`}>{log.text}</span>
                                 </span>
                             );
                         })}

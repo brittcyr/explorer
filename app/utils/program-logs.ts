@@ -151,10 +151,21 @@ export function parseProgramLogs(logs: string[], error: TransactionError | null,
                         const deserializedFillLog: manifest.FillLog = manifest.FillLog.deserialize(
                             buffer.subarray(8),
                         )[0];
+                        // TODO: Import convertU128 from manifest sdk, also
+                        // factor in decimals to make human readable
+                        // @ts-ignore
+                        deserializedFillLog.price = Number(deserializedFillLog.price.inner);
+                        // @ts-ignore
+                        deserializedFillLog.baseAtoms = Number(deserializedFillLog.baseAtoms.inner);
+                        // @ts-ignore
+                        deserializedFillLog.quoteAtoms = Number(deserializedFillLog.quoteAtoms.inner);
+                        // @ts-ignore
+                        delete deserializedFillLog.padding;
+
                         prettyLogs[prettyLogs.length - 1].logs.push({
                             prefix: prefixBuilder(depth),
                             style: 'muted',
-                            text: 'Fill Log: ' + JSON.stringify(deserializedFillLog.pretty(), null, 2),
+                            text: 'MFX Fill Log: \n' + JSON.stringify(deserializedFillLog.pretty(), null, 2),
                         });
                     }
                 }
